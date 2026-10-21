@@ -13,6 +13,7 @@
   --animate-draw: draw 0.5s ease-out forwards;
   --animate-aparecer: aparecer 0.4s ease-out;
   --animate-caer: caer 2.5s linear forwards;
+  --animate-grito: grito 1.6s ease-out forwards;
 
   /* Crece y vuelve a su tamaño (cuando aciertas una letra) */
   @keyframes pop {
@@ -28,6 +29,14 @@
   @keyframes aparecer {
     from { transform: translateY(12px) scale(0.97); opacity: 0; }
     to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  /* Frase grande que aparece, crece un poco y se desvanece */
+  @keyframes grito {
+    0% { transform: scale(0.3) rotate(-8deg); opacity: 0; }
+    20% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+    35% { transform: scale(1) rotate(-2deg); }
+    75% { opacity: 1; }
+    100% { transform: scale(1.15); opacity: 0; }
   }
   /* Confeti que cae al ganar */
   @keyframes caer {
