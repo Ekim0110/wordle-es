@@ -10,7 +10,8 @@ import Teclado from "./Teclado";
 import Vidas from "./Vidas";
 import { NIVELES, palabraAlAzar, type Palabra } from "@/lib/palabras";
 import { MAX_ERRORES, VICTORIAS_PARA_SUBIR } from "@/lib/reglas";
-import { guardarNivelMax, leerNivelMax } from "@/lib/progreso";
+import { guardarNivelMax, guardarSonido, leerNivelMax, leerSonido } from "@/lib/progreso";
+import { activarSonido, sonidos } from "@/lib/sonidos";
 
 // Letras válidas en español (incluye la Ñ).
 const ES_LETRA = /^[A-ZÑ]$/;
@@ -25,6 +26,14 @@ export default function Juego() {
   const [jugadas, setJugadas] = useState<string[]>([]); // para no repetir palabras
   const [actual, setActual] = useState<Palabra | null>(null);
   const [usadas, setUsadas] = useState<string[]>([]); // letras ya probadas
+  const [sonido, setSonido] = useState(true); // ¿sonido prendido?
+
+  // Prender o apagar el sonido, y recordarlo para la próxima visita.
+  const cambiarSonido = () => {
+    setSonido(!sonido);
+    activarSonido(!sonido);
+    guardarSonido(!sonido);
+  };
 
   // Empieza una palabra nueva en el nivel indicado.
   const nuevaPalabra = useCallback((n: number, yaJugadas: string[]) => {
@@ -47,6 +56,9 @@ export default function Juego() {
   // Al abrir la página: leemos el avance guardado y elegimos la primera palabra.
   // Se hace aquí (en el navegador) porque el servidor no conoce tu avance.
   useEffect(() => {
+    const conSonido = leerSonido();
+    setSonido(conSonido);
+    activarSonido(conSonido);
     const guardado = Math.min(leerNivelMax(), ULTIMO_NIVEL);
     setNivelMax(guardado);
     irANivel(guardado);
@@ -81,9 +93,20 @@ export default function Juego() {
     (tecla: string) => {
       const letra = tecla.toUpperCase();
       if (terminado || !ES_LETRA.test(letra) || usadas.includes(letra)) return;
-      setUsadas([...usadas, letra]);
+      const nuevas = [...usadas, letra];
+      setUsadas(nuevas);
+
+      // Elegimos qué sonido tocar según cómo queda la partida.
+      const fallos = nuevas.filter((l) => !palabra.includes(l)).length;
+      const completa = [...palabra].every((l) => nuevas.includes(l));
+      if (completa) {
+        if (victorias + 1 >= VICTORIAS_PARA_SUBIR) sonidos.subirNivel();
+        else sonidos.ganar();
+      } else if (fallos >= MAX_ERRORES) sonidos.perder();
+      else if (palabra.includes(letra)) sonidos.acierto();
+      else sonidos.error();
     },
-    [terminado, usadas],
+    [terminado, usadas, palabra, victorias],
   );
 
   // Escuchamos el teclado físico de la computadora.
@@ -144,6 +167,17 @@ export default function Juego() {
   return (
     <div className="flex w-full flex-col items-center gap-5">
       <Niveles actual={nivel} nivelMax={nivelMax} alElegir={irANivel} />
+
+      {/* Botón de sonido, fijo en la esquina de arriba a la derecha */}
+      <button
+        type="button"
+        onClick={cambiarSonido}
+        aria-label={sonido ? "Silenciar sonido" : "Activar sonido"}
+        title={sonido ? "Silenciar sonido" : "Activar sonido"}
+        className="fixed right-3 top-3 z-40 flex size-10 items-center justify-center rounded-full bg-white/5 text-lg ring-1 ring-white/10 transition hover:bg-white/10 sm:right-5 sm:top-5"
+      >
+        {sonido ? "🔊" : "🔇"}
+      </button>
 
       {/* Tarjeta principal con efecto de vidrio (fondo semitransparente y borroso) */}
       <section
