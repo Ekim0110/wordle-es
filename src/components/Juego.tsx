@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Confeti from "./Confeti";
 import Dibujo from "./Dibujo";
+import Grito from "./Grito";
 import Niveles from "./Niveles";
 import Teclado from "./Teclado";
 import Vidas from "./Vidas";
@@ -229,6 +230,11 @@ export default function Juego() {
       {terminado ? (
         <div className="flex w-full flex-col items-center gap-3 rounded-3xl bg-[#141a38]/85 p-6 text-center ring-1 ring-white/10 animate-aparecer">
           {gano && <Confeti />}
+          <Grito
+            key={palabra}
+            ganaste={gano}
+            texto={perdio ? "¡Paila!" : completoNivel ? "¡Qué berraquera!" : "¡Bacano!"}
+          />
           <p className={`text-3xl font-extrabold ${gano ? "text-emerald-400" : "text-rojo"}`}>{titulo}</p>
           <p className="text-white/70">{detalle}</p>
           <button
