@@ -148,7 +148,7 @@ export default function Juego() {
       {/* Tarjeta principal con efecto de vidrio (fondo semitransparente y borroso) */}
       <section
         ref={tarjeta}
-        className="w-full rounded-3xl bg-white/5 p-5 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl sm:p-7"
+        className="w-full rounded-3xl bg-[#141a38]/85 p-5 shadow-2xl ring-1 ring-white/10 sm:p-7"
       >
         {/* Arriba: progreso del nivel y vidas */}
         <div className="flex items-center justify-between">
@@ -193,7 +193,7 @@ export default function Juego() {
       </section>
 
       {terminado ? (
-        <div className="flex w-full flex-col items-center gap-3 rounded-3xl bg-white/5 p-6 text-center ring-1 ring-white/10 backdrop-blur-xl animate-aparecer">
+        <div className="flex w-full flex-col items-center gap-3 rounded-3xl bg-[#141a38]/85 p-6 text-center ring-1 ring-white/10 animate-aparecer">
           {gano && <Confeti />}
           <p className={`text-3xl font-extrabold ${gano ? "text-emerald-400" : "text-rojo"}`}>{titulo}</p>
           <p className="text-white/70">{detalle}</p>

@@ -41,7 +41,7 @@ export default function Dibujo({ errores }: { errores: number }) {
         <line x1="50" y1="15" x2="140" y2="15" />
         <line x1="140" y1="15" x2="140" y2="42" />
       </g>
-      <g stroke="url(#muneco)" style={{ filter: "drop-shadow(0 0 6px rgb(239 51 64 / 0.6))" }}>
+      <g stroke="url(#muneco)">
         {partes.slice(0, errores)}
       </g>
     </svg>
