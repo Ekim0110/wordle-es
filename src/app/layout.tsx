@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wordle en español",
-  description: "Adivina la palabra de 5 letras en 6 intentos.",
+  title: "El Ahorcado",
+  description: "El ahorcado con palabras colombianas y 4 niveles.",
 };
 
 export default function RootLayout({
