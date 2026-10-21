@@ -1,28 +1,22 @@
-// Página principal. Por ahora solo muestra el título y un tablero vacío.
-// En las siguientes etapas le daremos vida.
+import Bandera from "@/components/Bandera";
+import Juego from "@/components/Juego";
 
-const FILAS = 6; // intentos que tiene el jugador
-const LETRAS = 5; // largo de cada palabra
-
+// Página principal: el título y el juego.
+// El fondo con manchas de colores está en globals.css (es más liviano así).
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center gap-8 p-6 bg-neutral-900 text-white">
-      <h1 className="text-3xl font-bold tracking-widest uppercase">Wordle en español</h1>
-
-      <div className="grid gap-1.5">
-        {Array.from({ length: FILAS }).map((_, fila) => (
-          <div key={fila} className="grid grid-cols-5 gap-1.5">
-            {Array.from({ length: LETRAS }).map((_, columna) => (
-              <div
-                key={columna}
-                className="size-14 border-2 border-neutral-700"
-              />
-            ))}
-          </div>
-        ))}
+    <main className="flex min-h-screen w-full justify-center px-4 py-6 sm:py-10">
+      <div className="flex w-full max-w-xl flex-col items-center gap-6">
+        <header className="text-center">
+          <h1 className="bg-gradient-to-r from-amarillo via-azul to-rojo bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
+            El Ahorcado
+          </h1>
+          <p className="mt-1 flex items-center justify-center gap-1.5 text-sm text-white/60">
+            Adivina las palabras más colombianas <Bandera className="h-3 w-[18px]" />
+          </p>
+        </header>
+        <Juego />
       </div>
-
-      <p className="text-neutral-400 text-sm">Próximamente: ¡a jugar!</p>
     </main>
   );
 }
