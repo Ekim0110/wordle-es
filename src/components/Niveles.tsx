@@ -19,14 +19,14 @@ export default function Niveles({ actual, nivelMax, alElegir }: Props) {
             type="button"
             onClick={() => alElegir(i)}
             disabled={bloqueado}
-            className={`px-3 py-1.5 rounded-full text-sm font-semibold border-2 disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-35 ${
               elegido
-                ? "bg-yellow-400 border-yellow-400 text-neutral-900"
-                : "border-neutral-600 hover:border-neutral-400"
+                ? "bg-gradient-to-r from-amarillo to-orange-400 text-neutral-900 shadow-lg shadow-amarillo/30"
+                : "bg-white/5 ring-1 ring-white/10 hover:bg-white/10 enabled:hover:-translate-y-0.5"
             }`}
           >
             {bloqueado ? "🔒 " : ""}
-            {i + 1}. {nivel.nombre}
+            {nivel.nombre}
           </button>
         );
       })}

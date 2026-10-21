@@ -14,14 +14,16 @@ type Props = {
 
 export default function Teclado({ aciertos, fallos, bloqueado, alPresionar }: Props) {
   return (
-    <div className="flex flex-col gap-1.5 w-full max-w-lg">
+    <div className="flex w-full flex-col gap-1.5 sm:gap-2">
       {FILAS_TECLADO.map((fila, i) => (
-        <div key={i} className="flex gap-1.5 justify-center">
+        <div key={i} className="flex justify-center gap-1.5 sm:gap-2">
           {fila.map((letra) => {
-            // Elegimos el color según si la letra ya se usó.
-            let color = "bg-neutral-600 hover:bg-neutral-500";
-            if (aciertos.has(letra)) color = "bg-green-600";
-            if (fallos.has(letra)) color = "bg-red-800 text-neutral-400";
+            // Elegimos el estilo según si la letra ya se usó.
+            let estilo =
+              "bg-white/10 ring-1 ring-white/10 shadow-md hover:bg-white/20 hover:-translate-y-0.5 active:scale-90";
+            if (aciertos.has(letra))
+              estilo = "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30";
+            if (fallos.has(letra)) estilo = "bg-rojo/15 text-white/30 line-through";
             const usada = aciertos.has(letra) || fallos.has(letra);
 
             return (
@@ -31,7 +33,7 @@ export default function Teclado({ aciertos, fallos, bloqueado, alPresionar }: Pr
                 onClick={() => alPresionar(letra)}
                 disabled={usada || bloqueado}
                 aria-label={letra}
-                className={`h-14 flex-1 max-w-11 rounded font-bold text-lg select-none disabled:cursor-not-allowed ${color}`}
+                className={`h-12 max-w-11 flex-1 select-none rounded-xl text-lg font-semibold transition duration-150 disabled:cursor-not-allowed sm:h-14 ${estilo}`}
               >
                 {letra}
               </button>

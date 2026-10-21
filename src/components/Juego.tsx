@@ -2,10 +2,12 @@
 // "use client" le dice a Next.js que este componente corre en el navegador.
 // Lo necesitamos porque reacciona a lo que el jugador teclea.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Confeti from "./Confeti";
 import Dibujo from "./Dibujo";
 import Niveles from "./Niveles";
 import Teclado from "./Teclado";
+import Vidas from "./Vidas";
 import { NIVELES, palabraAlAzar, type Palabra } from "@/lib/palabras";
 import { MAX_ERRORES, VICTORIAS_PARA_SUBIR } from "@/lib/reglas";
 import { guardarNivelMax, leerNivelMax } from "@/lib/progreso";
@@ -96,75 +98,113 @@ export default function Juego() {
     return () => window.removeEventListener("keydown", alTeclear);
   }, [presionar, terminado, continuar]);
 
+  // Cuando fallas una letra, la tarjeta tiembla. Usamos una "ref" para
+  // tocar directamente el elemento de la página y animarlo.
+  const tarjeta = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (fallos.size === 0) return;
+    tarjeta.current?.animate(
+      [
+        { transform: "translateX(0)" },
+        { transform: "translateX(-8px)" },
+        { transform: "translateX(8px)" },
+        { transform: "translateX(-4px)" },
+        { transform: "translateX(0)" },
+      ],
+      { duration: 350, easing: "ease-in-out" },
+    );
+  }, [fallos.size]);
+
   if (!actual) return null; // un instante, mientras se elige la palabra
 
   // Texto del mensaje y del botón al terminar una palabra.
-  let mensaje = "";
+  let titulo = "";
+  let detalle = "";
   let boton = "";
   if (perdio) {
-    mensaje = "¡Paila! Perdiste 😵";
+    titulo = "¡Paila! 😵";
+    detalle = `La palabra era ${palabra}`;
     boton = "Intentar con otra palabra";
   } else if (completoNivel && nivel === ULTIMO_NIVEL) {
-    mensaje = "¡Usted es muy berraco! Completó todos los niveles 🏆";
+    titulo = "¡Usted es muy berraco! 🏆";
+    detalle = "Completó todos los niveles";
     boton = "Volver a empezar";
   } else if (completoNivel) {
-    mensaje = `¡Bacano! Pasaste al nivel ${nivel + 2} 🎉`;
+    titulo = "¡Bacano! 🎉";
+    detalle = `Desbloqueaste el nivel ${NIVELES[nivel + 1].nombre}`;
     boton = "Siguiente nivel";
   } else if (gano) {
-    mensaje = "¡Qué chévere, ganaste! 🎉";
+    titulo = "¡Qué chévere! 🎉";
+    detalle = "Adivinaste la palabra";
     boton = "Siguiente palabra";
   }
 
+  const ganadas = victorias + (gano ? 1 : 0);
+
   return (
-    <div className="flex flex-col items-center gap-5 w-full">
+    <div className="flex w-full flex-col items-center gap-5">
       <Niveles actual={nivel} nivelMax={nivelMax} alElegir={irANivel} />
 
-      {/* Cuántas palabras llevas en este nivel: ● ganada, ○ pendiente */}
-      <p className="text-neutral-400 text-sm" aria-label="Progreso del nivel">
-        Nivel {nivel + 1}: {NIVELES[nivel].nombre} ·{" "}
-        <span className="text-yellow-400 tracking-widest">
-          {"●".repeat(victorias + (gano ? 1 : 0))}
-          {"○".repeat(Math.max(0, VICTORIAS_PARA_SUBIR - victorias - (gano ? 1 : 0)))}
-        </span>
-      </p>
+      {/* Tarjeta principal con efecto de vidrio (fondo semitransparente y borroso) */}
+      <section
+        ref={tarjeta}
+        className="w-full rounded-3xl bg-white/5 p-5 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl sm:p-7"
+      >
+        {/* Arriba: progreso del nivel y vidas */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1" aria-label={`Ganadas ${ganadas} de ${VICTORIAS_PARA_SUBIR}`}>
+            {Array.from({ length: VICTORIAS_PARA_SUBIR }).map((_, i) => (
+              <span key={i} className={`text-lg ${i < ganadas ? "" : "opacity-20 grayscale"}`}>
+                ⭐
+              </span>
+            ))}
+          </div>
+          <Vidas errores={fallos.size} />
+        </div>
 
-      <p className="text-center max-w-sm">
-        <span className="text-neutral-400">Pista: </span>
-        <span className="font-semibold">{actual.pista}</span>
-      </p>
+        <div className="mt-2 flex justify-center">
+          <Dibujo errores={fallos.size} />
+        </div>
 
-      <Dibujo errores={fallos.size} />
+        {/* La pista, en una etiqueta */}
+        <p className="mx-auto mt-3 w-fit max-w-full rounded-2xl bg-azul/15 px-4 py-2 text-center text-sm ring-1 ring-azul/30 sm:text-base">
+          <span className="mr-1">💡</span>
+          {actual.pista}
+        </p>
 
-      <p className="text-neutral-400 text-sm">
-        Errores: {fallos.size} / {MAX_ERRORES}
-      </p>
-
-      {/* La palabra: muestra las letras adivinadas y espacios en las demás */}
-      <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2" aria-label="Palabra">
-        {[...palabra].map((letra, i) => {
-          const visible = aciertos.has(letra) || perdio;
-          const color = perdio && !aciertos.has(letra) ? "text-red-400" : "";
-          return (
-            <span
-              key={i}
-              className={`w-6 sm:w-9 border-b-4 border-neutral-400 text-center text-2xl sm:text-3xl font-bold ${color}`}
-            >
-              {visible ? letra : " "}
-            </span>
-          );
-        })}
-      </div>
+        {/* La palabra: una casilla por letra */}
+        <div className="mt-5 flex flex-wrap justify-center gap-1 sm:gap-1.5" aria-label="Palabra">
+          {[...palabra].map((letra, i) => {
+            const adivinada = aciertos.has(letra);
+            const visible = adivinada || perdio;
+            let estilo = "bg-white/5 ring-white/15";
+            if (adivinada) estilo = "bg-amarillo/15 ring-amarillo/60 text-amarillo animate-pop";
+            else if (perdio) estilo = "bg-rojo/15 ring-rojo/50 text-rojo";
+            return (
+              <span
+                key={`${i}-${visible}`}
+                className={`flex h-10 w-7 items-center justify-center rounded-lg text-xl font-bold ring-1 sm:h-12 sm:w-10 sm:text-2xl ${estilo}`}
+              >
+                {visible ? letra : ""}
+              </span>
+            );
+          })}
+        </div>
+      </section>
 
       {terminado ? (
-        <div className="flex flex-col items-center gap-3 text-center">
-          <p className={`text-2xl font-bold ${gano ? "text-green-400" : "text-red-400"}`}>{mensaje}</p>
+        <div className="flex w-full flex-col items-center gap-3 rounded-3xl bg-white/5 p-6 text-center ring-1 ring-white/10 backdrop-blur-xl animate-aparecer">
+          {gano && <Confeti />}
+          <p className={`text-3xl font-extrabold ${gano ? "text-emerald-400" : "text-rojo"}`}>{titulo}</p>
+          <p className="text-white/70">{detalle}</p>
           <button
             type="button"
             onClick={continuar}
-            className="px-6 py-3 rounded bg-green-600 hover:bg-green-500 font-bold"
+            className="mt-1 rounded-2xl bg-gradient-to-r from-amarillo to-orange-400 px-7 py-3 font-bold text-neutral-900 shadow-lg shadow-amarillo/30 transition hover:-translate-y-0.5 active:scale-95"
           >
             {boton}
           </button>
+          <p className="hidden text-xs text-white/40 sm:block">o pulsa Enter</p>
         </div>
       ) : (
         <Teclado aciertos={aciertos} fallos={fallos} bloqueado={terminado} alPresionar={presionar} />
