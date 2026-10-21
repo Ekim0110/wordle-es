@@ -6,6 +6,9 @@ significado como pista. Tiene 80 palabras en 4 niveles (gana 3 para pasar al
 siguiente) y sonidos colombianos (acordeón, guacharaca, maracas y tambora)
 hechos con la Web Audio API, con botón para silenciarlos.
 
+Es una app instalable (PWA): se puede agregar a la pantalla de inicio del
+celular y funciona sin internet.
+
 Hecho con Next.js, TypeScript y Tailwind CSS.
 
 ## Cómo correrlo en tu computadora

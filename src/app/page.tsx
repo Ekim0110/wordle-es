@@ -1,4 +1,5 @@
 import Bandera from "@/components/Bandera";
+import Instalar from "@/components/Instalar";
 import Juego from "@/components/Juego";
 
 // Página principal: el título y el juego.
@@ -16,6 +17,7 @@ export default function Home() {
           </p>
         </header>
         <Juego />
+        <Instalar />
       </div>
     </main>
   );

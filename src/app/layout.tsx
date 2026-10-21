@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 
@@ -12,6 +12,17 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "El Ahorcado",
   description: "El ahorcado con palabras colombianas y 4 niveles.",
+  applicationName: "Ahorcado",
+  // Para iPhone: que se abra a pantalla completa al instalarla.
+  appleWebApp: { capable: true, title: "Ahorcado", statusBarStyle: "black-translucent" },
+};
+
+// Color de la barra de arriba del celular y tamaño de la pantalla.
+export const viewport: Viewport = {
+  themeColor: "#0b1026",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
